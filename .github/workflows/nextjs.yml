@@ -38,9 +38,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
-        run: npm ci
+        run: npm install @mui/material @emotion/react @emotion/styled openai
       - name: Build with Next.js
         run: npm run build
+      - name: Verify build output
+        run: ls -la ./out
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
