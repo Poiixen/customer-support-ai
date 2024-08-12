@@ -50,41 +50,42 @@ You are an AI designed to provide exceptional customer support. Your primary goa
 Follow these guidelines to ensure a consistent and high-quality support experience for all customers.
 `
 export async function POST(req) {
-   const data = await req.json();
-   console.log('Received data:', data);
-
-   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-       method: "POST",
-       headers: {
-           "Authorization": `Bearer ${API_KEY}`,
-           "Content-Type": "application/json"
-       },
-       body: JSON.stringify({
-           "model": "meta-llama/llama-3.1-8b-instruct:free",
-           "messages": [
-               {"role": "system", "content": `${systemPrompt}`}, ...data
-           ],
-       })
-   });
-
-   const rawResponseText = await response.text();
-   console.log('Raw Response Text:', rawResponseText);
-
-   const routerData = JSON.parse(rawResponseText);
-
-   // Log the detailed routerData
-   console.log('Router Data:', JSON.stringify(routerData, null, 2));
-
-   if (routerData.choices && routerData.choices.length > 0) {
-       const messageContent = routerData.choices[0].message.content;
-       console.log('Message Content:', messageContent);
-       return NextResponse.json({ message: messageContent }, { status: 200 });
-   } else {
-       console.error('Invalid format for choices:', routerData.choices);
-       return NextResponse.json({ error: 'Invalid response format' }, { status: 500 });
-   }
-}
-
+    const data = await req.json();
+    console.log('Received data:', data);
+ 
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${API_KEY}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "model": "meta-llama/llama-3.1-8b-instruct:free",
+            "messages": [
+                {"role": "system", "content": `${systemPrompt}`}, ...data
+            ],
+        })
+    });
+ 
+    const rawResponseText = await response.text();
+    console.log('Raw Response Text:', rawResponseText);
+ 
+    try {
+        const routerData = JSON.parse(rawResponseText);
+ 
+        if (routerData.choices && routerData.choices.length > 0) {
+            const messageContent = routerData.choices[0].message.content;
+            console.log('Message Content:', messageContent);
+            return NextResponse.json({ message: messageContent }, { status: 200 });
+        } else {
+            console.error('Invalid format for choices:', routerData.choices);
+            return NextResponse.json({ error: 'Invalid response format' }, { status: 500 });
+        }
+    } catch (error) {
+        console.error('Error parsing response:', error);
+        return NextResponse.json({ error: 'Error parsing response' }, { status: 500 });
+    }
+ }
  
 
  
