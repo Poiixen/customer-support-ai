@@ -1,11 +1,11 @@
 'use client'
-import { Box, Stack, TextField, Button } from "@mui/material";
+import { Box, Stack, TextField, Button, Typography } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
     const [messages, setMessages] = useState([{
         role: "assistant", 
-        content: "Hi, I am the High Performance Programmer Support Agent, how can I assist you today?"
+        content: "Hi, I am your Support Agent, how can I assist you today?"
     }]);
 
     const [message, setMessage] = useState('');
@@ -23,18 +23,30 @@ export default function Home() {
         scrollToBottom();
     }, [messages]);
 
-    // Function to split text into chunks, ensuring chunks end at sentence boundaries
     const splitTextIntoChunks = (text, maxLength) => {
         const chunks = [];
         let currentChunk = '';
-        const sentences = text.split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/);
-
-        sentences.forEach(sentence => {
-            if ((currentChunk + (currentChunk ? ' ' : '') + sentence).length <= maxLength) {
-                currentChunk += (currentChunk ? ' ' : '') + sentence;
+        const lines = text.split('\n');
+        
+        lines.forEach(line => {
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+                // Handle bullet points
+                const bulletPoint = `${trimmedLine}\n`;
+                if ((currentChunk + bulletPoint).length <= maxLength) {
+                    currentChunk += bulletPoint;
+                } else {
+                    chunks.push(currentChunk);
+                    currentChunk = bulletPoint;
+                }
             } else {
-                chunks.push(currentChunk);
-                currentChunk = sentence;
+                // Handle regular lines
+                if ((currentChunk + (currentChunk ? ' ' : '') + line).length <= maxLength) {
+                    currentChunk += (currentChunk ? ' ' : '') + line;
+                } else {
+                    chunks.push(currentChunk);
+                    currentChunk = line;
+                }
             }
         });
 
@@ -46,7 +58,7 @@ export default function Home() {
     };
 
     const limitTextToSentences = (text, maxSentences) => {
-        const sentences = text.split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/); // Split by sentence
+        const sentences = text.split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/);
         return sentences.slice(0, maxSentences).join(' ');
     };
 
@@ -70,19 +82,11 @@ export default function Home() {
         console.log('API Response:', data);
 
         if (data.message) {
-            // Clean the response to remove any internal instructions or system prompts
-            const cleanText = data.message.replace(/^\*\*.*\*\*[\s\S]*?---\s+/, ''); // Remove system prompt part
-
-            // Limit the response to 5 sentences
+            const cleanText = data.message.replace(/^\*\*.*\*\*[\s\S]*?---\s+/, ''); 
             const limitedText = limitTextToSentences(cleanText, MAX_SENTENCES);
-
-            // Add a prompt asking if the user wants to know more
             const responseText = `${limitedText} Would you like to know more?`;
-
-            // Split the response content into smaller chunks
             const chunks = splitTextIntoChunks(responseText, MAX_BUBBLE_LENGTH);
 
-            // Update messages state with each chunk
             setMessages((messages) => [
                 ...messages.slice(0, -1),
                 ...chunks.map(chunk => ({
@@ -90,6 +94,13 @@ export default function Home() {
                     content: chunk
                 }))
             ]);
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { // Enter key pressed without Shift (i.e., not a newline)
+            e.preventDefault(); // Prevent the default newline behavior
+            sendMessage(); // Trigger the send action
         }
     };
 
@@ -101,14 +112,29 @@ export default function Home() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
+            bgcolor="#f5f5f5" // Light grey background
         >
+            <Box 
+                width="100%" 
+                bgcolor="#ff6f61" // Salmon color
+                color="white" 
+                p={2} 
+                textAlign="center"
+            >
+                <Typography variant="h5">Customer Service AI</Typography>
+            </Box>
+            
             <Stack 
                 direction="column"
                 width="600px"
                 height="700px"
-                border="1px solid black"
+                border="1px solid #ddd"
+                bgcolor="white"
                 p={2}
                 spacing={3}
+                borderRadius={4}
+                boxShadow="0 4px 8px rgba(0,0,0,0.1)"
+                mt={2}
             >
                 <Stack direction="column" 
                     spacing={2}
@@ -122,11 +148,14 @@ export default function Home() {
                                 message.role === "assistant" ? "flex-start" : "flex-end"
                             }>
                                 <Box bgcolor={
-                                    message.role === "assistant" ? "primary.main" : "secondary.main"
+                                    message.role === "assistant" ? "#f5deb3" : "#ffebcd" // Beige for assistant, light peach for user
                                 }
-                                color="white"
+                                color="black"
                                 borderRadius={16}
-                                p={3}
+                                p={3} // Increased padding
+                                maxWidth="85%" // Increased max width to make bubbles larger
+                                boxShadow="0 2px 4px rgba(0,0,0,0.1)"
+                                sx={{ wordBreak: 'break-word' }} // Ensure words break properly
                                 >
                                     {message.content}
                                 </Box>
@@ -141,8 +170,16 @@ export default function Home() {
                         fullWidth
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={handleKeyPress} // Attach key press handler
+                        variant="outlined"
                     />
-                    <Button variant="contained" onClick={sendMessage}>Send</Button>
+                    <Button 
+                        variant="contained" 
+                        color="primary" 
+                        onClick={sendMessage}
+                    >
+                        Send
+                    </Button>
                 </Stack>
             </Stack>
         </Box>
