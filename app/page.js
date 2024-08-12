@@ -1,116 +1,105 @@
-
-"use client"
-
-
+'use client'
+import { Box, Stack, TextField, Button } from "@mui/material";
+import RenderResult from "next/dist/server/render-result";
+import Image from "next/image";
 import { useState } from "react";
-import { Box, Modal, Stack, TextField, Typography, Button, List } from "@mui/material";
-import { deepPurple, lightBlue} from '@mui/material/colors';
-import { light } from "@mui/material/styles/createPalette";
+
 
 export default function Home() {
-  const [messages, setMessages] = useState([{
-    role: "assistant",
-    content: "Hi, I'm the customer support assistant. How can I help you today?"
-  }])
-
-  const userTextBackgroundColor = deepPurple['A400'] 
- 
-
-  const [message, setMessage] = useState('')
-
-  const sendMessage = async () => {
-    // Clear the input field
-    setMessage('');
+  
+    const [messages, setMessages]  = useState([{
+      role: "assistant", 
+      content: "Hi, I am the High Performance Programmer Support Agent, how can I assist you today?"
+    }])
+  
+    const [message, setMessage] = useState('')
     
-    // Add the user's message to the messages array
-    setMessages((messages) => [
-      ...messages,
-      { role: "user", content: message },
-      { role: "assistant", content: '' },
-    ]);
-  
-    try {
-      // Send the user's message to the server
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify([...messages, { role: 'user', content: message }]),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
-      }
-  
-      // Get the server's response
-      const data = await response.json();
-      const serverMessage = data.message;
-  
-      // Update the assistant's message with the server's response
-      setMessages((messages) => {
-        let lastMessage = messages[messages.length - 1];
-        let otherMessages = messages.slice(0, messages.length - 1);
-  
-        return [
-          ...otherMessages,
-          {
-            ...lastMessage,
-            content: serverMessage
-          },
-        ];
-      });
-  
-    } catch (error) {
-      console.error('Error fetching and processing data:', error);
-    }
-  };
-  
+    const sendMessage = async() => {
+      setMessage("")
+      setMessages((messages)=> [
+        ...messages, 
+        {role: "user", content: message}, 
+        {role: "assistant", content: ""},
+      ])
+      const response = await fetch("/api/chat", {
+        method: "POST", 
+        headers: { 
+          "Content-Type": "application/json"
+        }, 
+        body: JSON.stringify([...messages, {role: "user", content: message}])
+      }).then(async (res)=> { 
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
 
-  return (
-    <Box
-    width="100vw"
-    height="100vh"
-    display="flex"
-    flexDirection="column"
-    justifyContent="center"
-    alignItems="center">
-
-      <Stack direction={'column'} width="500px" height="700px" border="1px solid black" p={2}  overflow='auto'>
-        <Stack direction={"column"} spacing={2} flexGrow={1}>
-          {
-            messages.map( (message, index) => (
-              <Box
-                key={index}
-                display="flex"
-                justifyContent={message.role == 'assistant' ? 'flex-start' : 'flex-end'}
-              >
-                <Box
-                bgcolor={message.role == 'assistant' ? 'primary.main' : userTextBackgroundColor}
-                color = "white"
-                borderRadius={16}
-                p={2}
-                >
-                  {message.content}
-                </Box>
-
-              </Box>
-            ))
+        let result = ""
+        return reader.read().then(function proccessText({done, value}){
+          if(done){ 
+            return result
           }
-        </Stack>
-        <Stack direction={'row'} spacing={2}>
-          <TextField label="Message" fullWidth
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}/>
-          <Button variant="contained" 
-           onClick={sendMessage}
-           sx={{
-            backgroundColor: "#039be5"
-           }}
-          > Send</Button>
-        </Stack>
-      </Stack>
+          const text = decoder.decode(value || new Int8Array(), {stream:true})
+          setMessages((messages)=>{
+            let lastMessage = messages[messages.length - 1]
+            let otherMessages = messages.slice(0, messages.length -1)
+            return [
+              ...otherMessages, 
+              {
+                ...lastMessage,
+                content: lastMessage.content + text, 
+              },
+            ]
+          })
+          return reader.read().then(proccessText)
+        })
+      })
+    }
 
-    </Box>
-  );
+      return ( <Box 
+                width="100vw" 
+                height="100vh"
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center">
+                  
+
+                  <Stack 
+                  direction = "column"
+                  width= "600px"
+                  height="700px"
+                  border="1px solid black"
+                  p={2}
+                  spacing={3}
+                  >
+                    <Stack direction="column" 
+                    spacing = {2}
+                    flexGrow = {1}
+                    overflow = "auto"
+                    maxHeight = "100%">
+                        {
+                          messages.map((message, index)=> ( 
+                            <Box key={index} display = "flex" justifyContent={
+                              message.role=== "assistant" ? "flex-start" : "flex-end"   }
+                          > <Box bgcolor = {
+                            message.role === "assistant" ? "primary.main" : "secondary.main"
+                          }
+                          color="white"
+                          borderRadius={16}
+                          p={3}
+                          > 
+                          {message.content}
+                            </Box>
+                            </Box>
+                            ))}
+                    </Stack>
+                    <Stack direction = "row" spacing ={2}>
+                      <TextField 
+                      label ="message"
+                      fullWidth
+                      value={message}
+                      onChange={(e)=> setMessage(e.target.value)}/>
+                      <Button variant = "contained" onClick={sendMessage}>Send</Button>
+                    </Stack>
+                  </Stack>
+                </Box>
+      )
 }

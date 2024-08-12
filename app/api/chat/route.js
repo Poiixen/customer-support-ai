@@ -50,39 +50,45 @@ You are an AI designed to provide exceptional customer support. Your primary goa
 Follow these guidelines to ensure a consistent and high-quality support experience for all customers.
 `
 export async function POST(req) {
-    const openai = new OpenAI()
-    const data = await req.json()
+   const data = await req.json();
+   console.log('Received data:', data);
 
-    const completion = await openai.chat.completions.create({
-        messages:[
-            {
-            role: 'system', 
-            content: systemPrompt,
-            },
-            ...data,
-        ],
-        model: "meta-llama/llama-3.1-8b-instruct:free",
-        stream: true,
-    })
+   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+       method: "POST",
+       headers: {
+           "Authorization": `Bearer ${API_KEY}`,
+           "Content-Type": "application/json"
+       },
+       body: JSON.stringify({
+           "model": "meta-llama/llama-3.1-8b-instruct:free",
+           "messages": [
+               {"role": "system", "content": `${systemPrompt}`}, ...data
+           ],
+       })
+   });
 
-    const stream = new ReadableStream({
-        async start(controller){
-            const encoder = new TextEncoder()
-            try{
-                for await (const chunk of completion){
-                    const content = chunk.choices[0]?.delta?.content
-                    if (content){
-                        const text = encoder.encode(content)
-                        controller.enqueue(text)
-                    }
-                }
-            } catch(err){
-                controller.error(err)
-            } finally {
-                controller.close()
-            }
-        },
-    })
+   const rawResponseText = await response.text();
+   console.log('Raw Response Text:', rawResponseText);
 
-    return new NextResponse(stream)
+   const routerData = JSON.parse(rawResponseText);
+
+   // Log the detailed routerData
+   console.log('Router Data:', JSON.stringify(routerData, null, 2));
+
+   if (routerData.choices && routerData.choices.length > 0) {
+       const messageContent = routerData.choices[0].message.content;
+       console.log('Message Content:', messageContent);
+       return NextResponse.json({ message: messageContent }, { status: 200 });
+   } else {
+       console.error('Invalid format for choices:', routerData.choices);
+       return NextResponse.json({ error: 'Invalid response format' }, { status: 500 });
+   }
 }
+
+ 
+
+ 
+
+ 
+ 
+ 
