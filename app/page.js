@@ -112,22 +112,22 @@ export default function Home() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            bgcolor="#f5f5f5" // Light grey background
+            bgcolor="#f5f5f5"
         >
             <Box 
                 width="100%" 
-                bgcolor="#ff6f61" // Salmon color
+                bgcolor="#ff6f61" 
                 color="white" 
                 p={2} 
                 textAlign="center"
             >
-                <Typography variant="h5">Customer Service AI</Typography>
+                <Typography variant="h5" fontSize={{ xs: '1.2rem', sm: '1.5rem', md: '2rem' }}>Customer Service AI</Typography>
             </Box>
             
             <Stack 
                 direction="column"
-                width="600px"
-                height="700px"
+                width={{ xs: '90%', sm: '80%', md: '600px' }} 
+                height={{ xs: '80%', md: '700px' }}
                 border="1px solid #ddd"
                 bgcolor="white"
                 p={2}
@@ -136,26 +136,27 @@ export default function Home() {
                 boxShadow="0 4px 8px rgba(0,0,0,0.1)"
                 mt={2}
             >
-                <Stack direction="column" 
+                <Stack 
+                    direction="column" 
                     spacing={2}
                     flexGrow={1}
                     overflow="auto"
                     maxHeight="100%"
                 >
                     {
-                        messages.map((message, index) => ( 
+                        messages.map((message, index) => (
                             <Box key={index} display="flex" justifyContent={
                                 message.role === "assistant" ? "flex-start" : "flex-end"
                             }>
                                 <Box bgcolor={
-                                    message.role === "assistant" ? "#f5deb3" : "#ffebcd" // Beige for assistant, light peach for user
+                                    message.role === "assistant" ? "#f5deb3" : "#ffebcd"
                                 }
                                 color="black"
                                 borderRadius={16}
-                                p={3} // Increased padding
-                                maxWidth="85%" // Increased max width to make bubbles larger
+                                p={3} 
+                                maxWidth="85%" 
                                 boxShadow="0 2px 4px rgba(0,0,0,0.1)"
-                                sx={{ wordBreak: 'break-word' }} // Ensure words break properly
+                                sx={{ wordBreak: 'break-word' }}
                                 >
                                     {message.content}
                                 </Box>
@@ -170,13 +171,20 @@ export default function Home() {
                         fullWidth
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={handleKeyPress} // Attach key press handler
+                        onKeyDown={handleKeyPress}
                         variant="outlined"
+                        InputProps={{
+                            sx: { fontSize: { xs: '0.8rem', sm: '1rem' } }
+                        }}
                     />
                     <Button 
                         variant="contained" 
                         color="primary" 
                         onClick={sendMessage}
+                        sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '1rem' }, 
+                            px: { xs: 1, sm: 2 } 
+                        }}
                     >
                         Send
                     </Button>
