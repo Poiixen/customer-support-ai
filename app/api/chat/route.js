@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai"
 
 require('dotenv').config();
-const API_KEY = process.env.OPENAI_API_KEY;
+const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 
 const systemPrompt = `
 **System Prompt for Customer Support AI:**
@@ -56,7 +56,7 @@ export async function POST(req) {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
-            "Authorization": `Bearer ${OPENAI_API_KEY}`,
+            "Authorization": `Bearer ${API_KEY}`,
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
