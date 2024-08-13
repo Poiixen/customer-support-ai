@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai"
 
 require('dotenv').config();
-const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+const API_KEY = process.env.OPENAI_API_KEY;
 
 const systemPrompt = `
 **System Prompt for Customer Support AI:**
@@ -52,7 +52,8 @@ Follow these guidelines to ensure a consistent and high-quality support experien
 export async function POST(req) {
     const data = await req.json();
     console.log('Received data:', data);
- 
+    console.log('API_KEY:', API_KEY); // Temporary log for debugging
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -85,7 +86,7 @@ export async function POST(req) {
         console.error('Error parsing response:', error);
         return NextResponse.json({ error: 'Error parsing response' }, { status: 500 });
     }
- }
+}
  
 
  
