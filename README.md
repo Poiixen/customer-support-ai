@@ -12,6 +12,7 @@ This project is a chat application built using Next.js, React, JavaScript, and C
 - **CSS**: Styling for the user interface.
 - **Llama 3.1 API**: Provides advanced language model capabilities for chat interactions.
 - **Material-UI**: A popular React component library for UI design.
+- **Vercel**: For website deployment and hosting.
 
 ## Features
 
