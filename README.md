@@ -1,5 +1,7 @@
 # Chat Application with Next.js and Llama 3.1 API
 ![image_2024-08-11_234812434](https://github.com/user-attachments/assets/95f34bb2-bddd-4e81-b049-af4ee373c13a)
+## Demo
+customer-support-ai-one.vercel.app
 ## Overview
 
 This project is a chat application built using Next.js, React, JavaScript, and CSS. It integrates with the Llama 3.1 API to provide advanced customer support interactions. The application features an intuitive chat interface, message handling with text splitting, and auto-scrolling.
