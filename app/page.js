@@ -100,9 +100,9 @@ export default function Home() {
     };
 
     const handleKeyPress = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { // Enter key pressed without Shift (i.e., not a newline)
-            e.preventDefault(); // Prevent the default newline behavior
-            sendMessage(); // Trigger the send action
+        if (e.key === 'Enter' && !e.shiftKey) { // enter key pressed without Shift (i.e., not a newline)
+            e.preventDefault(); // prevents the default newline behavior
+            sendMessage(); // trigger the send action
         }
     };
 
