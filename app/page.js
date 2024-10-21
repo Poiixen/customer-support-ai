@@ -119,7 +119,7 @@ export default function Home() {
             >
                 <Box 
                     width="100%" 
-                    bgcolor="#ff6f61" 
+                    bgcolor="#14BF96" 
                     color="white" 
                     p={2} 
                     textAlign="center"
@@ -152,7 +152,7 @@ export default function Home() {
                                     message.role === "assistant" ? "flex-start" : "flex-end"
                                 }>
                                     <Box bgcolor={
-                                        message.role === "assistant" ? "#f5deb3" : "#ffebcd"
+                                        message.role === "assistant" ? "#66C7C2" : "#C3F0E0"
                                     }
                                     color="black"
                                     borderRadius={16}
