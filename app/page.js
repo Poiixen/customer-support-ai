@@ -12,11 +12,12 @@ export default function Home() {
 
     const [message, setMessage] = useState('');
     
-    const MAX_BUBBLE_LENGTH = 500; // Define the maximum length for each bubble
-    const MAX_SENTENCES = 5; // Limit to 5 sentences
+    const MAX_BUBBLE_LENGTH = 500; // max char count for output
+    const MAX_SENTENCES = 5; 
 
     const messagesEndRef = useRef(null);
 
+    // auto scroll
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -25,6 +26,7 @@ export default function Home() {
         scrollToBottom();
     }, [messages]);
 
+    // text parser
     const splitTextIntoChunks = (text, maxLength) => {
         const chunks = [];
         let currentChunk = '';
@@ -33,7 +35,7 @@ export default function Home() {
         lines.forEach(line => {
             const trimmedLine = line.trim();
             if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
-                // Handle bullet points
+                // handles bullet point output -- TODO: newlines for each bullet point 
                 const bulletPoint = `${trimmedLine}\n`;
                 if ((currentChunk + bulletPoint).length <= maxLength) {
                     currentChunk += bulletPoint;
@@ -42,7 +44,7 @@ export default function Home() {
                     currentChunk = bulletPoint;
                 }
             } else {
-                // Handle regular lines
+                // regular lines
                 if ((currentChunk + (currentChunk ? ' ' : '') + line).length <= maxLength) {
                     currentChunk += (currentChunk ? ' ' : '') + line;
                 } else {
@@ -58,9 +60,10 @@ export default function Home() {
         
         return chunks;
     };
-
+    
+    //splits text by periods and question marks, but not false splits like Mr. or Mrs.
     const limitTextToSentences = (text, maxSentences) => {
-        const sentences = text.split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/);
+        const sentences = text.split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/); 
         return sentences.slice(0, maxSentences).join(' ');
     };
 
@@ -109,15 +112,17 @@ export default function Home() {
     return (
         <>
             <Box 
+            // background screen
                 width="100vw" 
                 height="100vh"
                 display="flex"
                 flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
-                bgcolor="#f5f5f5"
-            >
+                bgcolor="#f5f5f5" 
+            > 
                 <Box 
+                //title bar
                     width="100%" 
                     bgcolor="#14BF96" 
                     color="white" 
@@ -143,10 +148,11 @@ export default function Home() {
                         direction="column" 
                         spacing={2}
                         flexGrow={1}
-                        overflow="auto"
+                        overflow="auto" // enable scrolling
                         maxHeight="100%"
                     >
                         {
+                            // message display 
                             messages.map((message, index) => (
                                 <Box key={index} display="flex" justifyContent={
                                     message.role === "assistant" ? "flex-start" : "flex-end"
@@ -170,6 +176,7 @@ export default function Home() {
                     </Stack>
                     <Stack direction="row" spacing={2}>
                         <TextField 
+                        //input field
                             label="Message"
                             fullWidth
                             value={message}
@@ -181,6 +188,7 @@ export default function Home() {
                             }}
                         />
                         <Button 
+                        //send button
                             variant="contained" 
                             color="primary" 
                             onClick={sendMessage}
